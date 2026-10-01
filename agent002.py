@@ -214,9 +214,10 @@ if st.button("Search") and requirements:
     with st.spinner("Loading..."):
 
         llm = ChatOpenRouter(
-            model="google/gemini-2.5-flash",
+            #model="google/gemini-2.5-flash",
+            model="deepseek/deepseek-v4.1-flash",
             temperature=0,
-            max_tokens=1000
+            max_tokens=1500
         )
 
         system_prompt = f"""
