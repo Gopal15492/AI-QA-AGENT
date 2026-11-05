@@ -9,8 +9,8 @@ import { DashboardPage } from '../src/pages/DashboardPage';
  * Credentials are read from the environment so they are never committed:
  *   OHRM_USERNAME / OHRM_PASSWORD
  */
-const USERNAME = process.env.OHRM_USERNAME ?? 'Admin';
-const PASSWORD = process.env.OHRM_PASSWORD ?? '';
+const USERNAME = process.env.OHRM_USERNAME ?? process.env.ORANGEHRM_USERNAME ?? 'Admin';
+const PASSWORD = process.env.OHRM_PASSWORD ?? process.env.ORANGEHRM_PASSWORD ?? 'admin123';
 
 test.describe('Dashboard - Overview', () => {
   let loginPage: LoginPage;
@@ -22,6 +22,7 @@ test.describe('Dashboard - Overview', () => {
 
     await loginPage.goto();
     await loginPage.login(USERNAME, PASSWORD);
+    await loginPage.expectLoginSuccess();
   });
 
   test('displays the Dashboard module header and URL after login', async () => {

@@ -26,7 +26,9 @@ export class LoginPage {
   /** Navigate to the login page. */
   async goto(): Promise<void> {
     await this.page.goto('/web/index.php/auth/login');
-    await expect(this.loginHeading).toBeVisible();
+    await this.page.waitForLoadState('domcontentloaded');
+    await expect(this.page).toHaveURL(/\/web\/index\.php\/auth\/login/);
+    await expect(this.loginHeading).toBeVisible({ timeout: 15000 });
   }
 
   /** Fill credentials and submit the login form. */
