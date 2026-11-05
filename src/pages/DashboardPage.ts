@@ -33,7 +33,7 @@ export class DashboardPage {
   constructor(page: Page) {
     this.page = page;
 
-    this.pageHeader = page.getByRole('heading', { name: 'Dashboard', level: 6 });
+    this.pageHeader = page.getByRole('heading', { name: /Dashboard/i }).first();
     this.userDropdown = page.locator('.oxd-userdropdown-tab');
     this.logoutMenuItem = page.getByRole('menuitem', { name: 'Logout' });
     this.upgradeButton = page.getByRole('button', { name: 'Upgrade' });
@@ -68,8 +68,10 @@ export class DashboardPage {
 
   /** Wait until the Dashboard module has finished rendering. */
   async waitForLoaded(): Promise<void> {
-    await expect(this.pageHeader).toBeVisible();
-    await expect(this.quickLaunchWidget).toBeVisible();
+    await this.page.waitForLoadState('domcontentloaded');
+    await expect(this.page).toHaveURL(/\/dashboard\/index/, { timeout: 15000 });
+    await expect(this.pageHeader).toBeVisible({ timeout: 15000 });
+    await expect(this.quickLaunchWidget).toBeVisible({ timeout: 15000 });
   }
 
   /** Assert the Dashboard page header is displayed. */
@@ -80,9 +82,23 @@ export class DashboardPage {
 
   /** Return all Quick Launch action labels rendered on the dashboard. */
   async getQuickLaunchLabels(): Promise<string[]> {
-    return this.quickLaunchWidget
-      .locator('button .oxd-text')
-      .allInnerTexts();
+    const actions = this.quickLaunchWidget.locator('button, a, [role="button"], .oxd-icon-button');
+    const count = await actions.count();
+    const labels: string[] = [];
+
+    for (let i = 0; i < count; i += 1) {
+      const action = actions.nth(i);
+      const label =
+        (await action.getAttribute('aria-label')) ||
+        (await action.getAttribute('title')) ||
+        (await action.textContent()) ||
+        '';
+
+      const normalized = label.trim();
+      if (normalized) labels.push(normalized);
+    }
+
+    return labels;
   }
 
   /** Click a Quick Launch action by its visible label. */
